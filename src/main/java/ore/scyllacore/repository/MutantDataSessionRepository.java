@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import ore.scyllacore.domain.MutantData;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 
 @Repository
 @AllArgsConstructor
@@ -16,9 +15,23 @@ public class MutantDataSessionRepository implements MutantDataRepository {
 
     @Override
     public void insert(MutantData mutantData) {
-        session.execute("INSERT INTO mutant_data (first_name,last_name,address,picture_location) " +
-                "VALUES ('Rob','Roy','1995 Courage St', 'https://www.kinopoisk.ru/film/3592/')");
+                session.execute("INSERT INTO mutant_data (first_name, last_name, address, picture_location) VALUES (?, ?, ?, ?)",
+                mutantData.getFirstName(),
+                mutantData.getLastName(),
+                mutantData.getAddress(),
+                mutantData.getPictureLocation());
     }
+
+    @Override
+    public void insert(MutantData mutantData, int ttl) {
+        session.execute("INSERT INTO mutant_data (first_name, last_name, address, picture_location) VALUES (?, ?, ?, ?) using ttl ?",
+                mutantData.getFirstName(),
+                mutantData.getLastName(),
+                mutantData.getAddress(),
+                mutantData.getPictureLocation(),
+                ttl);
+    }
+
 
     @Override
     public MutantData selectOne(String firstName, String lastName) {

@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.util.concurrent.TimeUnit;
+
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -21,6 +23,9 @@ public class ScyllaCQLSessionTest {
     @Autowired
     @Qualifier("mutantDataSessionRepository")
     private MutantDataRepository repository;
+    @Autowired
+    @Qualifier("mutantDataPreparedSessionRepository")
+    private MutantDataRepository preparedRepository;
 
     private final MutantData mutantData = MutantData.builder()
             .firstName("Rob")
@@ -36,13 +41,40 @@ public class ScyllaCQLSessionTest {
         assertNotNull(repository.selectOne("Rob", "Roy"));
     }
 
-
-
     @Test
-    public void sessionDelete() {
+    public void delete() {
         repository.insert(mutantData);
         repository.delete("Rob", "Roy");
 
         assertNull(repository.selectOne("Rob", "Roy"));
     }
+
+    @Test
+    public void insertTtl() throws InterruptedException {
+        repository.insert(mutantData, 1);
+        assertNotNull(repository.selectOne("Rob", "Roy"));
+        TimeUnit.SECONDS.sleep(2);
+        assertNull(repository.selectOne("Rob", "Roy"));
+    }
+
+
+    @Test
+    public void updateTtl() throws InterruptedException {
+        repository.insert(mutantData, 2);
+        TimeUnit.SECONDS.sleep(1);
+        assertNotNull(repository.selectOne("Rob", "Roy"));
+
+        repository.insert(mutantData, 5);
+        TimeUnit.SECONDS.sleep(2);
+        assertNotNull(repository.selectOne("Rob", "Roy"));
+    }
+
+    @Test
+    public void preparedInsert() {
+        repository.delete("Rob", "Roy");
+        preparedRepository.insert(mutantData);
+
+        assertNotNull(repository.selectOne("Rob", "Roy"));
+    }
+
 }

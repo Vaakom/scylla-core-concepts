@@ -6,9 +6,11 @@ import java.util.List;
 
 public interface MutantDataRepository {
 
-    public void insert(MutantData mutantData);
+    void insert(MutantData mutantData);
 
-    public MutantData selectOne(String firstName, String lastName);
+    void insert(MutantData mutantData, int ttl);
 
-    public void delete(String firstName, String lastName);
+    MutantData selectOne(String firstName, String lastName);
+
+    void delete(String firstName, String lastName);
 }
