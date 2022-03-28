@@ -2,8 +2,6 @@ package ore.scyllacore.repository;
 
 import ore.scyllacore.domain.MutantData;
 
-import java.util.List;
-
 public interface MutantDataRepository {
 
     void insert(MutantData mutantData);
